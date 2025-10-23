@@ -71,7 +71,7 @@
           }
         }
     }).addTo(map);
-//test
+
   // Load parks GeoJSON
           const responseParks = await fetch("data/park.geojson");
           const geojsonParks = await responseParks.json();
@@ -94,7 +94,21 @@
           console.error("Error loading GeoJSON:", error);
         }
       }
+  // Add search control
+      const searchControl = new L.Control.Search({
+        layer: hospitalLayer,
+        propertyName: "name", // Property to search
+        marker: false,
+        moveToLocation: function(latlng, title, map) {
+          map.setView(latlng, 15); // Zoom to location on search
+        }
+      });
 
+      searchControl.on("search:locationfound", function(e) {
+        e.layer.openPopup(); // Open popup for found feature
+      });
+
+      map.addControl(searchControl);
       loadGeoJSON();
 
     </script>
