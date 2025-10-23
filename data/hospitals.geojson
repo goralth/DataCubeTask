@@ -1,0 +1,700 @@
+{
+  "type": "FeatureCollection",
+  "generator": "overpass-turbo",
+  "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL.",
+  "timestamp": "2025-10-23T10:42:00Z",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "relation/6080098",
+        "amenity": "hospital",
+        "healthcare": "hospital",
+        "name": "Zafaranah Healthcare Centre",
+        "name:en": "Zafaranah Healthcare Centre",
+        "type": "multipolygon"
+      },
+      "geometry": {
+        "type": "MultiPolygon",
+        "coordinates": [
+          [
+            [
+              [
+                54.4336848,
+                24.4349045
+              ],
+              [
+                54.4340665,
+                24.4348631
+              ],
+              [
+                54.4340744,
+                24.4349232
+              ],
+              [
+                54.434091,
+                24.4349214
+              ],
+              [
+                54.4341186,
+                24.4351325
+              ],
+              [
+                54.433729,
+                24.4351747
+              ],
+              [
+                54.4337193,
+                24.4351005
+              ],
+              [
+                54.4336869,
+                24.435104
+              ],
+              [
+                54.4336723,
+                24.4349923
+              ],
+              [
+                54.433696,
+                24.4349898
+              ],
+              [
+                54.4336848,
+                24.4349045
+              ]
+            ]
+          ],
+          [
+            [
+              [
+                54.4337483,
+                24.4352849
+              ],
+              [
+                54.4342488,
+                24.4352213
+              ],
+              [
+                54.4342595,
+                24.4352913
+              ],
+              [
+                54.4343055,
+                24.4352855
+              ],
+              [
+                54.4343444,
+                24.4355389
+              ],
+              [
+                54.4343039,
+                24.4355441
+              ],
+              [
+                54.4343129,
+                24.4356028
+              ],
+              [
+                54.434254,
+                24.4356103
+              ],
+              [
+                54.4342585,
+                24.4356397
+              ],
+              [
+                54.4338113,
+                24.4356965
+              ],
+              [
+                54.4337483,
+                24.4352849
+              ]
+            ]
+          ]
+        ]
+      },
+      "id": "relation/6080098"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/100971961",
+        "amenity": "hospital",
+        "building": "yes",
+        "name": "Imperial College London Diabetes Centre",
+        "name:en": "Imperial College London Diabetes Centre",
+        "source": "Bing"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              54.4281176,
+              24.420201
+            ],
+            [
+              54.428658,
+              24.4200532
+            ],
+            [
+              54.4283456,
+              24.4207285
+            ],
+            [
+              54.4282128,
+              24.4207456
+            ],
+            [
+              54.4281176,
+              24.420201
+            ]
+          ]
+        ]
+      },
+      "id": "way/100971961"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/251383938",
+        "addr:city": "أبو ظبي",
+        "addr:city:ar": "أبو ظبي",
+        "addr:city:en": "Abu Dhabi",
+        "addr:city:ur": "ابوظہبی",
+        "amenity": "hospital",
+        "area": "yes",
+        "name": "Madinat Khalifa Healthcare Center",
+        "name:ar": "مركز مدينة خليفة الصحي",
+        "name:en": "Madinat Khalifa Healthcare Center",
+        "opening_hours": "Mo-Su 07:00-22:00",
+        "phone": "80050",
+        "source": "Kaart Ground Survey 2017",
+        "website": "https://www.seha.ae/"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              54.5643961,
+              24.427953
+            ],
+            [
+              54.5646867,
+              24.4271101
+            ],
+            [
+              54.5656921,
+              24.4273975
+            ],
+            [
+              54.5654015,
+              24.4282404
+            ],
+            [
+              54.5643961,
+              24.427953
+            ]
+          ]
+        ]
+      },
+      "id": "way/251383938"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/376563678",
+        "amenity": "hospital",
+        "name": "مستشفى هيلث بوينت",
+        "name:ar": "مستشفى هيلث بوينت",
+        "name:en": "Healthpoint Hospital"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              54.4532884,
+              24.419421
+            ],
+            [
+              54.4526724,
+              24.4195492
+            ],
+            [
+              54.4526654,
+              24.4195213
+            ],
+            [
+              54.4525311,
+              24.4189861
+            ],
+            [
+              54.4526661,
+              24.418958
+            ],
+            [
+              54.4529644,
+              24.418896
+            ],
+            [
+              54.4531784,
+              24.4188516
+            ],
+            [
+              54.4532355,
+              24.419079
+            ],
+            [
+              54.4532042,
+              24.4190855
+            ],
+            [
+              54.4532884,
+              24.419421
+            ]
+          ]
+        ]
+      },
+      "id": "way/376563678"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/403212671",
+        "amenity": "hospital",
+        "healthcare": "hospital",
+        "name": "Zayed Military Hospital",
+        "name:en": "Zayed Military Hospital"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              54.4337614,
+              24.4186043
+            ],
+            [
+              54.4343614,
+              24.4220853
+            ],
+            [
+              54.4339563,
+              24.4221414
+            ],
+            [
+              54.4339242,
+              24.4220315
+            ],
+            [
+              54.4284203,
+              24.4227984
+            ],
+            [
+              54.4281172,
+              24.4210937
+            ],
+            [
+              54.4282052,
+              24.4207623
+            ],
+            [
+              54.4283559,
+              24.4207432
+            ],
+            [
+              54.4287086,
+              24.4199911
+            ],
+            [
+              54.4298939,
+              24.4196205
+            ],
+            [
+              54.4301109,
+              24.419565
+            ],
+            [
+              54.4337614,
+              24.4186043
+            ]
+          ]
+        ]
+      },
+      "id": "way/403212671"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/413021010",
+        "amenity": "hospital",
+        "name": "NMC Royal Hospital Khalifa City",
+        "source": "Kaart Ground Survey 2017"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              54.5711961,
+              24.414445
+            ],
+            [
+              54.5693171,
+              24.4139377
+            ],
+            [
+              54.5691944,
+              24.4137383
+            ],
+            [
+              54.5697019,
+              24.4122924
+            ],
+            [
+              54.5717572,
+              24.412872
+            ],
+            [
+              54.5711961,
+              24.414445
+            ]
+          ]
+        ]
+      },
+      "id": "way/413021010"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/946239893",
+        "amenity": "hospital",
+        "healthcare": "hospital",
+        "name": "Reem Hospital"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              54.4118478,
+              24.4927222
+            ],
+            [
+              54.411997,
+              24.4905525
+            ],
+            [
+              54.413635,
+              24.4904073
+            ],
+            [
+              54.4137242,
+              24.4905027
+            ],
+            [
+              54.4136562,
+              24.4910889
+            ],
+            [
+              54.4133961,
+              24.4916239
+            ],
+            [
+              54.4131647,
+              24.4919535
+            ],
+            [
+              54.4126447,
+              24.4924098
+            ],
+            [
+              54.4120444,
+              24.492736
+            ],
+            [
+              54.4118775,
+              24.4927926
+            ],
+            [
+              54.4118478,
+              24.4927222
+            ]
+          ]
+        ]
+      },
+      "id": "way/946239893"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/1233252311",
+        "amenity": "hospital",
+        "healthcare": "hospital",
+        "healthcare:speciality": "radiology;radiotherapy",
+        "man_made": "particle_accelerator",
+        "name": "مركز الخليج الدولي للأورام",
+        "name:en": "Gulf International Cancer Center",
+        "particle_accelerator": "circular",
+        "substance": "proton",
+        "website": "https://www.gulficc.com/"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              54.6515663,
+              24.5025903
+            ],
+            [
+              54.6521266,
+              24.5021045
+            ],
+            [
+              54.6525105,
+              24.5024558
+            ],
+            [
+              54.6520649,
+              24.502801
+            ],
+            [
+              54.6519259,
+              24.5026565
+            ],
+            [
+              54.6517737,
+              24.502783
+            ],
+            [
+              54.6515663,
+              24.5025903
+            ]
+          ]
+        ]
+      },
+      "id": "way/1233252311"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/916327476",
+        "amenity": "hospital",
+        "emergency": "yes",
+        "healthcare": "hospital",
+        "name": "Medi Clinic airport Rd",
+        "name:en": "Al Noor Hospital"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          54.4615873,
+          24.4172257
+        ]
+      },
+      "id": "node/916327476"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4189719989",
+        "amenity": "hospital",
+        "name": "Al Rahba Hospital",
+        "name:en": "Al Rahba Hospital"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          54.6946752,
+          24.572759
+        ]
+      },
+      "id": "node/4189719989"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4270149190",
+        "amenity": "hospital",
+        "name": "Al Mushrif Children's Specialty Center",
+        "name:en": "Al Mushrif Children's Specialty Center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          54.4031186,
+          24.4351637
+        ]
+      },
+      "id": "node/4270149190"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4587005796",
+        "amenity": "hospital",
+        "name": "مستشفي المغربي",
+        "name:ar": "مستشفي المغربي",
+        "name:en": "Magrebi Eye and Ear Hospital"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          54.4060632,
+          24.4264147
+        ]
+      },
+      "id": "node/4587005796"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4646406890",
+        "amenity": "hospital",
+        "name": "مستشفي زايد العسكري",
+        "name:ar": "مستشفي زايد العسكري"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          54.4304476,
+          24.4198736
+        ]
+      },
+      "id": "node/4646406890"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4809030122",
+        "amenity": "hospital",
+        "healthcare": "hospital",
+        "name": "Medeor",
+        "name:en": "Medeor"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          54.6135631,
+          24.4541783
+        ]
+      },
+      "id": "node/4809030122"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4874626521",
+        "amenity": "hospital",
+        "fixme": "name, name:en mismatch.",
+        "healthcare": "hospital",
+        "name": "helth care",
+        "name:ar": "مركز المقطع الصحي",
+        "name:en": "Almaqta Healthcare Center",
+        "opening_hours": "Sa-Th 07:00-22:00; Fr 14:00-22:00",
+        "phone": "80050",
+        "website": "https://www.seha.ae/"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          54.5042097,
+          24.4022648
+        ]
+      },
+      "id": "node/4874626521"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/6371743491",
+        "amenity": "hospital",
+        "name": "Parking.accomodition"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          54.4046181,
+          24.4514825
+        ]
+      },
+      "id": "node/6371743491"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/6493351085",
+        "amenity": "hospital",
+        "internet_access": "wlan",
+        "name:en": "Specialized Rehabilitation Hospital",
+        "opening_hours": "24/7"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          54.4492787,
+          24.4213944
+        ]
+      },
+      "id": "node/6493351085"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/7380314389",
+        "amenity": "hospital",
+        "healthcare": "hospital",
+        "healthcare:speciality": "general",
+        "name": "Burjeel Day Surgery Center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          54.4082432,
+          24.4947868
+        ]
+      },
+      "id": "node/7380314389"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/8104318489",
+        "amenity": "hospital",
+        "name": "Amana health care"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          54.5883496,
+          24.436245
+        ]
+      },
+      "id": "node/8104318489"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/12486106553",
+        "amenity": "hospital",
+        "healthcare": "hospital",
+        "name": "NYUAD Health Center",
+        "operator": "Nyuad",
+        "operator:type": "private"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          54.4346032,
+          24.5245139
+        ]
+      },
+      "id": "node/12486106553"
+    }
+  ]
+}
