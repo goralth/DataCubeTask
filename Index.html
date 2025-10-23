@@ -75,7 +75,7 @@
   // Load parks GeoJSON
           const responseParks = await fetch("data/park.geojson");
           const geojsonParks = await responseParks.json();
-         const parkLayer L.geoJSON(geojsonParks, {
+         const parkLayer = L.geoJSON(geojsonParks, {
             onEachFeature: (feature, layer) => {
               if (feature.properties && feature.properties.name) {
                 layer.bindPopup("Park: " + feature.properties.name);
