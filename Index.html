@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Leaflet Load GeoJSON Example</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Leaflet CSS -->
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css"
+    />
+
+    <style>
+      #map {
+        height: 100vh;
+        width: 100%;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="map"></div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+
+    <script>
+      // Initialize map centered on India
+      var map = L.map("map").setView([20.5937, 78.9629], 5);
+
+      // Add OpenStreetMap base layer
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        attribution:
+          '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+      }).addTo(map);
+
+      // Load GeoJSON data (from file or web service)
+      async function loadGeoJSON() {
+        try {
+          // Example 1: Load from local server or hosted file
+          // const response = await fetch("data/sample.geojson");
+
+          // Example 2: Load from online source or API
+          const response = await fetch(
+            "https://raw.githubusercontent.com/johan/world.geo.json/master/countries/IND.geo.json"
+          );
+
+          const geojsonData = await response.json();
+
+          // Add GeoJSON layer to map
+          L.geoJSON(geojsonData, {
+            onEachFeature: function (feature, layer) {
+              if (feature.properties && feature.properties.name) {
+                layer.bindPopup("Name: " + feature.properties.name);
+              }
+            },
+            style: function (feature) {
+              return { color: "#0077cc", weight: 2 };
+            },
+          }).addTo(map);
+        } catch (error) {
+          console.error("Error loading GeoJSON:", error);
+        }
+      }
+
+      loadGeoJSON();
+    </script>
+  </body>
+</html>
