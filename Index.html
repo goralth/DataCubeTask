@@ -157,15 +157,11 @@ searchBox.addEventListener("input", function () {
 
   if (query.includes("find hospital")) {
     console.log("Detected 'find hospital' phrase — highlighting hospitals");
-  
+    map.fitBounds(hospitalLayer.getBounds());
     if (parkLayer) {
       map.removeLayer(parkLayer); // hide parks
     }
-    if(hospitalLayer){
-	  map.fitBounds(hospitalLayer.getBounds());
-       if(!map.hasLayer(hospitalLayer)){
-         hospitalLayer.addTo(map);
-	}
+
     hospitalLayer.eachLayer(function (layer) {
       if (typeof layer.setStyle === "function") {
         layer.setStyle({
@@ -175,8 +171,7 @@ searchBox.addEventListener("input", function () {
           fillOpacity: 0.7,
         });
       }
-     });
-    }
+    });
   } 
   else if (query.includes("show park") || query.includes("find park")) {
     console.log("Detected 'show/find park' phrase — highlighting parks");
@@ -260,7 +255,7 @@ searchBox.addEventListener("input", function () {
 
     // Call main to start loading and setup
     main();
-
+}
   </script>
 </body>
 </html>
