@@ -140,6 +140,10 @@
   if (query.includes("find hospital")) {
     console.log("Detected 'find hospital' phrase — highlighting hospitals");
     map.fitBounds(hospitalLayer.getBounds());
+    if (parkLayer) {
+  	  map.removeLayer(parkLayer); // hide hospitals when parks shown
+    }
+
     hospitalLayer.eachLayer(function (layer) {
       layer.setStyle({
         color: "#ff0000",
@@ -155,7 +159,9 @@
     }
     if (parkLayer) {
       map.fitBounds(parkLayer.getBounds());
-     
+      if (!map.hasLayer(parkLayer)) {
+      parkLayer.addTo(map); // show park layer
+      }
       parkLayer.eachLayer(function (layer) {
         layer.setStyle({
           color: "#006400",  // darker green
