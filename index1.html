@@ -159,38 +159,32 @@
           console.warn("Search control container not ready.");
           return;
         }
-        // Find the search input inside control container
         const input = container.querySelector("input.leaflet-search-input");
         if (!input) {
           console.warn("Search input not found inside control container.");
           return;
         }
         if (container.querySelector(".leaflet-search-button")) {
-          // Button already added
-          return;
+          return; // button already exists
         }
-        // Create button element
         const btn = document.createElement("button");
         btn.type = "button";
         btn.className = "leaflet-search-button";
         btn.textContent = "Search";
-        // Button click triggers the search using searchControl API
+
         btn.addEventListener("click", () => {
           const val = input.value.trim();
           if (val.length > 0) {
-            // Perform the search, highlight the first result
-            searchControl._sourceLayer._map.fire('search:start'); // Force start event
-            searchControl._input.value = val;
+            // Perform search only on button click
             searchControl._searchText = val;
             searchControl._performSearch(val);
           }
         });
-        // Insert button next to input
-        input.style.width = "180px"; // shrink input width to accommodate button
+
+        input.style.width = "180px"; // optionally adjust width
         input.parentNode.insertBefore(btn, input.nextSibling);
       }
 
-      // Attach listener for detecting "find hospital" phrase (unchanged)
       function attachSearchInputListener(retries = 5) {
         const searchBox = document.querySelector("input.search-input, input.leaflet-search-input");
         if (!searchBox) {
@@ -199,112 +193,22 @@
           return;
         }
 
-        console.log("Search input found, attached listener.");
+        console.log("Search input found, attaching button and disabling live search.");
 
-        addSearchButton(); // add the search button once input is found
+        addSearchButton();
 
-        searchBox.addEventListener("input", function () {
-          const query = searchBox.value.toLowerCase().trim();
-
-          if (query.includes("find hospital")) {
-            console.log("Detected 'find hospital' phrase — highlighting hospitals");
-
-            if (parkLayer) {
-              map.removeLayer(parkLayer); 
-            }
-            if(hospitalLayer) {
-              map.fitBounds(hospitalLayer.getBounds());
-              if (!map.hasLayer(hospitalLayer)) {
-                hospitalLayer.addTo(map);
-              }
-              hospitalLayer.eachLayer(function (layer) {
-                if (typeof layer.setStyle === "function") {
-                  layer.setStyle({
-                    color: "#ff0000",
-                    weight: 3,
-                    fillColor: "#ff6666",
-                    fillOpacity: 0.7,
-                  });
-                }
-              });
-            }
-          }
-          else if (query.includes("show park") || query.includes("find park")) {
-            console.log("Detected 'show/find park' phrase — highlighting parks");
-            if (hospitalLayer) {
-              map.removeLayer(hospitalLayer);
-            }
-            if (parkLayer) {
-              map.fitBounds(parkLayer.getBounds());
-              if (!map.hasLayer(parkLayer)) {
-                parkLayer.addTo(map);
-              }
-              parkLayer.eachLayer(function (layer) {
-                if (typeof layer.setStyle === "function") {
-                  layer.setStyle({
-                    color: "#006400", 
-                    weight: 4,
-                    fillColor: "#32cd32",
-                    fillOpacity: 0.7,
-                  });
-                }
-              });
-            }
-          }
-          else if (query.includes("park near corniche")) {
-            console.log("Detected 'park near corniche' phrase — searching nearby parks");
-            const corniche = L.latLng(24.482, 54.331);
-            const radius = 1000;
-            const nearbyParks = [];
-
-            parkLayer.eachLayer(function (layer) {
-              let centerPoint;
-              if (layer.getBounds) {
-                centerPoint = layer.getBounds().getCenter();
-              } else if (layer.getLatLng) {
-                centerPoint = layer.getLatLng();
-              }
-              if (centerPoint) {
-                const distance = getDistance(corniche, centerPoint);
-                if (distance <= radius) {
-                  nearbyParks.push(layer);
-                  if (typeof layer.setStyle === "function") {
-                    layer.setStyle({
-                      color: "#006400",
-                      weight: 4,
-                      fillColor: "#32cd32",
-                      fillOpacity: 0.7,
-                    });
-                  }
-                } else {
-                  if (typeof layer.setStyle === "function") {
-                    parkLayer.resetStyle(layer);
-                  }
-                }
-              }
-            });
-            if (nearbyParks.length > 0) {
-              var group = L.featureGroup(nearbyParks);
-              map.fitBounds(group.getBounds());
-            } else {
-              console.log("No parks found near Corniche in radius");
-            }
-          }
-          else if (query === "") {
-            if (hospitalLayer) {
-              hospitalLayer.eachLayer(function (layer) {
-                if (typeof layer.setStyle === "function") hospitalLayer.resetStyle(layer);
-              });
-            }
-            if (parkLayer) {
-              parkLayer.eachLayer(function (layer) {
-                if (typeof layer.setStyle === "function") parkLayer.resetStyle(layer);
-              });
-            }
-            console.log("Search box cleared, reset all styles.");
-          }
+        // Remove or disable live search event listener
+        // The leaflet-search plugin internally adds an 'input' event listener,
+        // but since we don't directly have access to it, we override the behavior:
+        searchBox.removeEventListener("input", searchControl._onInput || function(){});
+        // Alternatively, override input event to do nothing
+        searchBox.addEventListener("input", function(e) {
+          e.stopPropagation();
         });
+
+        // Here you can keep any other logic, but no automatic search on input
       }
+
       attachSearchInputListener();
     }
 
