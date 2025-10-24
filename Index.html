@@ -150,8 +150,14 @@
     });
   } else if (query.includes("show park") || query.includes("find park")) {
     console.log("Detected 'show/find park' phrase — highlighting parks");
+   if (hospitalLayer) {
+  	  map.removeLayer(hospitalLayer); // hide hospitals when parks shown
+    }
     if (parkLayer) {
       map.fitBounds(parkLayer.getBounds());
+      if (!map.hasLayer(parkLayer)) {
+      parkLayer.addTo(map); // show park layer
+      }
       parkLayer.eachLayer(function (layer) {
         layer.setStyle({
           color: "#006400",  // darker green
