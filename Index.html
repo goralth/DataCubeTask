@@ -119,27 +119,32 @@
 
 
       //Detect "find hospitals" keyword
-  searchControl.on("search:expanded", function () {
-    const searchBox = document.querySelector(".search-input");
-    if (searchBox) {
-      searchBox.addEventListener("input", function () {
-        const query = searchBox.value.toLowerCase();
+ // Detect keyword "find hospital" after search control is ready
+setTimeout(() => {
+  const searchBox = document.querySelector(".search-input");
+  if (!searchBox) {
+    console.warn("Search input not found!");
+    return;
+  }
 
-        if (query.includes("find hospital")) {
-          map.fitBounds(hospitalLayer.getBounds()); // zoom to show all hospitals
-          hospitalLayer.eachLayer(function (layer) {
-            layer.setStyle({
-              color: "#ff0000",
-              weight: 3,
-              fillColor: "#ff6666",
-              fillOpacity: 0.7,
-            });
-          });
-          console.log("Highlighted all hospitals (user searched for 'find hospital').");
-        }
+  searchBox.addEventListener("input", function () {
+    const query = searchBox.value.toLowerCase().trim();
+
+    if (query.includes("find hospital")) {
+      map.fitBounds(hospitalLayer.getBounds()); // Zoom to all hospitals
+      hospitalLayer.eachLayer(function (layer) {
+        layer.setStyle({
+          color: "#ff0000",
+          weight: 3,
+          fillColor: "#ff6666",
+          fillOpacity: 0.7,
+        });
       });
+      console.log("Highlighted all hospitals (user searched for 'find hospital').");
     }
   });
+}, 1000);
+
 
       map.addControl(searchControl);
     }
