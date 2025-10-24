@@ -135,6 +135,8 @@
 
   searchBox.addEventListener("input", function () {
     const query = searchBox.value.toLowerCase().trim();
+  console.log("User typed:", query);
+
 
     if (query.includes("find hospital")) {
       console.log("Detected 'find hospital' phrase — highlighting hospitals");
