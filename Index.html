@@ -198,7 +198,7 @@ searchBox.addEventListener("input", function () {
   else if (query.includes("park near corniche")) {
     console.log("Detected 'park near corniche' phrase — searching nearby parks");
     const corniche = L.latLng(24.482, 54.331); // Corniche approximate center
-    const radius = 3000; // 3 km radius to search within
+    const radius = 1000; // 3 km radius to search within
     const nearbyParks = [];
     
     parkLayer.eachLayer(function (layer) {
