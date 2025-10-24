@@ -190,8 +190,8 @@
         }
       }
       else if (query.includes("park near corniche")) {
-        const corniche = L.latLng(24.482, 54.331);
-        const radius = 7000;
+        const corniche = L.latLng(24.504730827276585, 54.4148511245793);
+        const radius = 3000;
         const nearbyParks = [];
 
         parkLayer.eachLayer(function (layer) {
@@ -224,7 +224,7 @@
         if (nearbyParks.length > 0) {
           var group = L.featureGroup(nearbyParks);
           map.fitBounds(group.getBounds());
-	  console.log(nearbyParks.length);  
+	  console.log("Park found");  
         } else {
           console.log("No parks found near Corniche in radius");
         }
