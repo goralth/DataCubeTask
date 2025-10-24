@@ -41,6 +41,7 @@
     let hospitalLayer;
     let parkLayer;
     let searchControl;
+
     var map = L.map("map").setView([24.47, 54.38], 12);
 
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
@@ -69,7 +70,7 @@
         const responseHospitals = await fetch("data/hospitals.geojson");
         const geojsonHospitals = await responseHospitals.json();
         hospitalLayer = L.geoJSON(geojsonHospitals, {
-          pointToLayer: (feature, latlng) => {
+          pointToLayer: function (feature, latlng) {
             return L.circleMarker(latlng, {
               radius: 6,
               fillColor: "#ff0000",
@@ -79,7 +80,7 @@
               fillOpacity: 0.8,
             });
           },
-          style: (feature) => {
+          style: function (feature) {
             if (
               feature.geometry.type === "Polygon" ||
               feature.geometry.type === "MultiPolygon"
@@ -92,7 +93,7 @@
               };
             }
           },
-          onEachFeature: (feature, layer) => {
+          onEachFeature: function (feature, layer) {
             if (feature.properties && feature.properties.name) {
               layer.bindPopup("<b>Hospital:</b> " + feature.properties.name);
             }
@@ -102,7 +103,7 @@
         const responseParks = await fetch("data/park.geojson");
         const geojsonParks = await responseParks.json();
         parkLayer = L.geoJSON(geojsonParks, {
-          pointToLayer: (feature, latlng) => {
+          pointToLayer: function (feature, latlng) {
             return L.circleMarker(latlng, {
               radius: 6,
               fillColor: "#008000",
@@ -112,7 +113,7 @@
               fillOpacity: 0.8,
             });
           },
-          style: (feature) => {
+          style: function (feature) {
             if (feature.geometry.type === "Polygon" || feature.geometry.type === "MultiPolygon") {
               return {
                 color: "#008000",
@@ -122,7 +123,7 @@
               };
             }
           },
-          onEachFeature: (feature, layer) => {
+          onEachFeature: function (feature, layer) {
             if (feature.properties && feature.properties.name) {
               layer.bindPopup("Park: " + feature.properties.name);
             }
@@ -133,6 +134,34 @@
       }
     }
 
+    function handleSearch(query, input) {
+      // Manual search through hospital layer
+      let found = false;
+      hospitalLayer.eachLayer(function(layer) {
+        if (layer.feature && layer.feature.properties && layer.feature.properties.name) {
+          const name = layer.feature.properties.name.toLowerCase();
+          if (name.includes(query)) {
+            found = true;
+            let center;
+            if (layer.getLatLng) {
+              center = layer.getLatLng();
+            } else if (layer.getBounds) {
+              center = layer.getBounds().getCenter();
+            }
+            if (center) {
+              map.setView(center, 15);
+              layer.openPopup();
+            }
+            return; // Stop after first match
+          }
+        }
+      });
+
+      if (!found) {
+        console.log("No hospital found with that name");
+      }
+    }
+
     async function main() {
       await loadGeoJSON();
 
@@ -140,7 +169,9 @@
         layer: hospitalLayer,
         propertyName: "name",
         marker: false,
-        moveToLocation: (latlng, title, map) => {
+        autoCollapse: false,
+        minLength: 1,
+        moveToLocation: function (latlng, title, map) {
           map.setView(latlng, 15);
         },
       });
@@ -151,138 +182,157 @@
 
       map.addControl(searchControl);
 
-      attachSearchAndButton();
+      // Wait a bit for the DOM to fully render the control
+      setTimeout(() => {
+        attachSearchAndButton();
+      }, 500);
     }
 
     function attachSearchAndButton() {
-      const retries = 15;
-      let attempts = 0;
+      // Get the container from the search control
+      const container = searchControl.getContainer();
+      
+      if (!container) {
+        console.error("Search control container not found");
+        return;
+      }
 
-      const intervalId = setInterval(() => {
-        const input = document.querySelector("input.leaflet-search-input");
-        if (input) {
-          clearInterval(intervalId);
-          console.log("Search input found, attaching search button.");
+      console.log("Search control container found:", container);
 
-          if (!document.querySelector('.leaflet-search-button')) {
-            const btn = document.createElement('button');
-            btn.type = 'button';
-            btn.className = 'leaflet-search-button';
-            btn.textContent = 'Search';
+      // Find the input element - try multiple selectors
+      let input = container.querySelector('input');
+      
+      if (!input) {
+        console.error("Search input not found in container");
+        return;
+      }
 
-            btn.addEventListener('click', () => {
-              const query = input.value.toLowerCase().trim();
+      console.log("Search input found:", input);
 
-              if (query.length > 0) {
-                // Dispatch input event programmatically ON button click
-                // Because live search is disabled, this triggers search once
-                const inputEvent = new Event('input', { bubbles: true });
-                input.value = query;
-                input.dispatchEvent(inputEvent);
-              }
+      // Check if button already exists
+      if (container.querySelector('.leaflet-search-button')) {
+        console.log("Button already exists");
+        return;
+      }
 
-              // Keyword toggling logic:
-              if (query.includes("find hospital")) {
-                console.log("Detected 'find hospital' phrase — highlighting hospitals");
-                if (parkLayer) map.removeLayer(parkLayer);
-                if (hospitalLayer) {
-                  map.fitBounds(hospitalLayer.getBounds());
-                  if (!map.hasLayer(hospitalLayer)) map.addLayer(hospitalLayer);
-                  hospitalLayer.eachLayer(layer => {
-                    if (typeof layer.setStyle === "function") {
-                      layer.setStyle({
-                        color: "#ff0000",
-                        weight: 3,
-                        fillColor: "#ff6666",
-                        fillOpacity: 0.7,
-                      });
-                    }
-                  });
-                }
-              } else if (query.includes("show park") || query.includes("find park")) {
-                console.log("Detected 'show/find park' phrase — highlighting parks");
-                if (hospitalLayer) map.removeLayer(hospitalLayer);
-                if (parkLayer) {
-                  map.fitBounds(parkLayer.getBounds());
-                  if (!map.hasLayer(parkLayer)) map.addLayer(parkLayer);
-                  parkLayer.eachLayer(layer => {
-                    if (typeof layer.setStyle === "function") {
-                      layer.setStyle({
-                        color: "#006400",
-                        weight: 4,
-                        fillColor: "#32cd32",
-                        fillOpacity: 0.7,
-                      });
-                    }
-                  });
-                }
-              } else if (query.includes("park near corniche")) {
-                console.log("Detected 'park near corniche' phrase — searching nearby parks");
-                const corniche = L.latLng(24.482, 54.331);
-                const radius = 1000;
-                const nearbyParks = [];
+      // Create the search button
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'leaflet-search-button';
+      btn.textContent = 'Search';
 
-                parkLayer.eachLayer(layer => {
-                  let centerPoint;
-                  if (layer.getBounds) centerPoint = layer.getBounds().getCenter();
-                  else if (layer.getLatLng) centerPoint = layer.getLatLng();
+      // Button click handler
+      btn.addEventListener('click', function() {
+        const query = input.value.toLowerCase().trim();
+        console.log("Search button clicked, query:", query);
 
-                  if (centerPoint) {
-                    const dist = getDistance(corniche, centerPoint);
-                    if (dist <= radius) {
-                      nearbyParks.push(layer);
-                      if (typeof layer.setStyle === "function") {
-                        layer.setStyle({
-                          color: "#006400",
-                          weight: 4,
-                          fillColor: "#32cd32",
-                          fillOpacity: 0.7,
-                        });
-                      }
-                    } else {
-                      if (typeof layer.setStyle === "function") {
-                        parkLayer.resetStyle(layer);
-                      }
-                    }
-                  }
+        if (query.length === 0) {
+          console.log("Empty query");
+          return;
+        }
+
+        // Handle keyword-based searches
+        if (query.includes("find hospital")) {
+          console.log("Detected 'find hospital' phrase — highlighting hospitals");
+          if (parkLayer) map.removeLayer(parkLayer);
+          if (hospitalLayer) {
+            map.fitBounds(hospitalLayer.getBounds());
+            if (!map.hasLayer(hospitalLayer)) hospitalLayer.addTo(map);
+            hospitalLayer.eachLayer(layer => {
+              if (typeof layer.setStyle === "function") {
+                layer.setStyle({
+                  color: "#ff0000",
+                  weight: 3,
+                  fillColor: "#ff6666",
+                  fillOpacity: 0.7,
                 });
-
-                if (nearbyParks.length > 0) {
-                  const group = L.featureGroup(nearbyParks);
-                  map.fitBounds(group.getBounds());
-                } else {
-                  console.log("No parks found near Corniche in radius");
-                }
-              } else if (query === "") {
-                if (hospitalLayer) hospitalLayer.eachLayer(layer => {
-                  if (typeof layer.setStyle === "function") hospitalLayer.resetStyle(layer);
-                });
-                if (parkLayer) parkLayer.eachLayer(layer => {
-                  if (typeof layer.setStyle === "function") parkLayer.resetStyle(layer);
-                });
-                console.log("Search box cleared, reset all styles.");
               }
             });
-
-            input.style.width = "180px";
-            input.parentNode.insertBefore(btn, input.nextSibling);
           }
+        } else if (query.includes("show park") || query.includes("find park")) {
+          console.log("Detected 'show/find park' phrase — highlighting parks");
+          if (hospitalLayer) map.removeLayer(hospitalLayer);
+          if (parkLayer) {
+            map.fitBounds(parkLayer.getBounds());
+            if (!map.hasLayer(parkLayer)) parkLayer.addTo(map);
+            parkLayer.eachLayer(layer => {
+              if (typeof layer.setStyle === "function") {
+                layer.setStyle({
+                  color: "#006400",
+                  weight: 4,
+                  fillColor: "#32cd32",
+                  fillOpacity: 0.7,
+                });
+              }
+            });
+          }
+        } else if (query.includes("park near corniche")) {
+          console.log("Detected 'park near corniche' phrase — searching nearby parks");
+          const corniche = L.latLng(24.482, 54.331);
+          const radius = 1000;
+          const nearbyParks = [];
 
-          // Disable live search on typing except when button is clicked
-          input.oninput = null;
-          input.addEventListener('input', (e) => {
-            e.stopPropagation();
-            e.preventDefault();
+          parkLayer.eachLayer(layer => {
+            let centerPoint;
+            if (layer.getBounds) {
+              centerPoint = layer.getBounds().getCenter();
+            } else if (layer.getLatLng) {
+              centerPoint = layer.getLatLng();
+            }
+            if (centerPoint) {
+              const distance = getDistance(corniche, centerPoint);
+              if (distance <= radius) {
+                nearbyParks.push(layer);
+                if (typeof layer.setStyle === "function") {
+                  layer.setStyle({
+                    color: "#006400",
+                    weight: 4,
+                    fillColor: "#32cd32",
+                    fillOpacity: 0.7,
+                  });
+                }
+              } else {
+                if (typeof layer.setStyle === "function") {
+                  parkLayer.resetStyle(layer);
+                }
+              }
+            }
           });
 
-        } else {
-          attempts++;
-          if (attempts >= retries) {
-            clearInterval(intervalId);
-            console.warn("Search input not found after retries");
+          if (nearbyParks.length > 0) {
+            const group = L.featureGroup(nearbyParks);
+            map.fitBounds(group.getBounds());
+          } else {
+            console.log("No parks found near Corniche in radius");
           }
+        } else {
+          // Regular hospital name search
+          handleSearch(query, input);
         }
-      }, 300);
+      });
+
+      // Add button next to input
+      input.style.width = "180px";
+      input.parentNode.appendChild(btn);
+
+      // Disable the automatic search on typing
+      // Store the original event handler
+      const originalHandler = input.oninput;
+      
+      // Override the input event to do nothing
+      input.oninput = null;
+      input.onkeyup = null;
+      
+      // Remove any event listeners
+      const newInput = input.cloneNode(true);
+      input.parentNode.replaceChild(newInput, input);
+      input = newInput;
+      
+      // Re-add button after replacing input
+      input.style.width = "180px";
+      input.parentNode.appendChild(btn);
+
+      console.log("Search button setup complete");
     }
 
     main();
