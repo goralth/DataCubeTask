@@ -29,6 +29,7 @@
   <script>
     // Declare hospitalLayer globally
     let hospitalLayer;
+    let parkLayer;
 
     // Initialize map centered on Abu Dhabi
     var map = L.map("map").setView([24.47, 54.38], 12);
@@ -79,7 +80,7 @@
         // Load parks GeoJSON with green polygon style
         const responseParks = await fetch("data/park.geojson");
         const geojsonParks = await responseParks.json();
-        L.geoJSON(geojsonParks, {
+        parkLayer = L.geoJSON(geojsonParks, {
           onEachFeature: (feature, layer) => {
             if (feature.properties && feature.properties.name) {
               layer.bindPopup("Park: " + feature.properties.name);
@@ -134,29 +135,48 @@
   console.log("Search input found, attached listener.");
 
   searchBox.addEventListener("input", function () {
-    const query = searchBox.value.toLowerCase().trim();
-  console.log("User typed:", query);
+  const query = searchBox.value.toLowerCase().trim();
 
-
-    if (query.includes("find hospital")) {
-      console.log("Detected 'find hospital' phrase — highlighting hospitals");
-      map.fitBounds(hospitalLayer.getBounds());
-      hospitalLayer.eachLayer(function (layer) {
+  if (query.includes("find hospital")) {
+    console.log("Detected 'find hospital' phrase — highlighting hospitals");
+    map.fitBounds(hospitalLayer.getBounds());
+    hospitalLayer.eachLayer(function (layer) {
+      layer.setStyle({
+        color: "#ff0000",
+        weight: 3,
+        fillColor: "#ff6666",
+        fillOpacity: 0.7,
+      });
+    });
+  } else if (query.includes("show park") || query.includes("find park")) {
+    console.log("Detected 'show/find park' phrase — highlighting parks");
+    if (parkLayer) {
+      map.fitBounds(parkLayer.getBounds());
+      parkLayer.eachLayer(function (layer) {
         layer.setStyle({
-          color: "#ff0000",
-          weight: 3,
-          fillColor: "#ff6666",
+          color: "#006400",  // darker green
+          weight: 4,
+          fillColor: "#32cd32",
           fillOpacity: 0.7,
         });
       });
-    } else if (query === "") {
+    }
+  } else if (query === "") {
+    // clear highlight on both layers
+    if (hospitalLayer) {
       hospitalLayer.eachLayer(function (layer) {
         hospitalLayer.resetStyle(layer);
       });
-      console.log("Search box cleared, reset hospital styles.");
     }
-  });
-}
+    if (parkLayer) {
+      parkLayer.eachLayer(function (layer) {
+        parkLayer.resetStyle(layer);
+      });
+    }
+    console.log("Search box cleared, reset all styles.");
+  }
+});
+
 
 
 
