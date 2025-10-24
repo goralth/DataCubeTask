@@ -313,66 +313,96 @@
     console.log("Detected 'find hospital' phrase — highlighting hospitals");
     map.fitBounds(hospitalLayer.getBounds());
     if (parkLayer) {
-  	  map.removeLayer(parkLayer); // hide hospitals when parks shown
+      map.removeLayer(parkLayer); // hide parks
     }
 
     hospitalLayer.eachLayer(function (layer) {
-      layer.setStyle({
-        color: "#ff0000",
-        weight: 3,
-        fillColor: "#ff6666",
-        fillOpacity: 0.7,
-      });
+      if (typeof layer.setStyle === "function") {
+        layer.setStyle({
+          color: "#ff0000",
+          weight: 3,
+          fillColor: "#ff6666",
+          fillOpacity: 0.7,
+        });
+      }
     });
-  } else if (query.includes("show park") || query.includes("find park")) {
+  } 
+  else if (query.includes("show park") || query.includes("find park")) {
     console.log("Detected 'show/find park' phrase — highlighting parks");
-   if (hospitalLayer) {
-  	  map.removeLayer(hospitalLayer); // hide hospitals when parks shown
+    if (hospitalLayer) {
+      map.removeLayer(hospitalLayer); // hide hospitals
     }
     if (parkLayer) {
       map.fitBounds(parkLayer.getBounds());
       if (!map.hasLayer(parkLayer)) {
-      parkLayer.addTo(map); // show park layer
+        parkLayer.addTo(map);
       }
       parkLayer.eachLayer(function (layer) {
-        layer.setStyle({
-          color: "#006400",  // darker green
-          weight: 4,
-          fillColor: "#32cd32",
-          fillOpacity: 0.7,
-        });
+        if (typeof layer.setStyle === "function") {
+          layer.setStyle({
+            color: "#006400", // darker green
+            weight: 4,
+            fillColor: "#32cd32",
+            fillOpacity: 0.7,
+          });
+        }
       });
     }
-  } else if (q.includes("show park near corniche")) {
-          const corniche = L.latLng(24.482, 54.331);
-          const radius = 3000; // 3km
-          const nearbyParks = [];
-          parkLayer.eachLayer(l => {
-            let c = l.getBounds ? l.getBounds().getCenter() : l.getLatLng();
-            if (c) {
-              const d = getDistance(corniche, c);
-              if(d <= radius) {
-                nearbyParks.push(l);
-                if (typeof l.setStyle==='function') l.setStyle({color:"#006400", fillColor:"#32cd32", weight:4, fillOpacity:0.7});
-              } else if (typeof l.setStyle==='function') {
-                // optional: reset style for others outside radius
-                parkLayer.resetStyle(l);
-              }
-            }
-          });
-          if(nearbyParks.length) {
-            map.fitBounds(L.featureGroup(nearbyParks).getBounds());
+  } 
+  else if (query.includes("park near corniche")) {
+    console.log("Detected 'park near corniche' phrase — searching nearby parks");
+    const corniche = L.latLng(24.482, 54.331); // Corniche approximate center
+    const radius = 3000; // 3 km radius to search within
+    const nearbyParks = [];
+    
+    parkLayer.eachLayer(function (layer) {
+      let centerPoint;
+      if (layer.getBounds) {
+        centerPoint = layer.getBounds().getCenter();
+      } else if (layer.getLatLng) {
+        centerPoint = layer.getLatLng();
+      }
+      if (centerPoint) {
+        const distance = getDistance(corniche, centerPoint);
+        if (distance <= radius) {
+          nearbyParks.push(layer);
+          if (typeof layer.setStyle === "function") {
+            layer.setStyle({
+              color: "#006400",
+              weight: 4,
+              fillColor: "#32cd32",
+              fillOpacity: 0.7,
+            });
+          }
+        } else {
+          if (typeof layer.setStyle === "function") {
+            parkLayer.resetStyle(layer);
           }
         }
-        else if (q==="") {
-          // reset styles
-          if(hospitalLayer) hospitalLayer.eachLayer(l => { if(typeof l.setStyle==='function') hospitalLayer.resetStyle(l); });
-          if(parkLayer) parkLayer.eachLayer(l => { if(typeof l.setStyle==='function') parkLayer.resetStyle(l); });
-        }
+      }
+    });
+    if (nearbyParks.length > 0) {
+      var group = L.featureGroup(nearbyParks);
+      map.fitBounds(group.getBounds());
+    } else {
+      console.log("No parks found near Corniche in radius");
+    }
+  } 
+  else if (query === "") {
+    if (hospitalLayer) {
+      hospitalLayer.eachLayer(function (layer) {
+        if (typeof layer.setStyle === "function") hospitalLayer.resetStyle(layer);
       });
+    }
+    if (parkLayer) {
+      parkLayer.eachLayer(function (layer) {
+        if (typeof layer.setStyle === "function") parkLayer.resetStyle(layer);
+      });
+    }
     console.log("Search box cleared, reset all styles.");
   }
 });
+
 
 }
 
