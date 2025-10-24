@@ -123,38 +123,40 @@
       map.addControl(searchControl);
 
       // Attach listener for detecting "find hospital" phrase
-      function attachSearchInputListener(retries = 5) {
-        const searchBox = document.querySelector(".search-input");
-        if (!searchBox) {
-          if (retries > 0) setTimeout(() => attachSearchInputListener(retries - 1), 300);
-          else console.warn("Search input not found after retries.");
-          return;
-        }
+    function attachSearchInputListener(retries = 5) {
+  const searchBox = document.querySelector("input.search-input, input.leaflet-search-input");
+  if (!searchBox) {
+    if (retries > 0) setTimeout(() => attachSearchInputListener(retries - 1), 300);
+    else console.warn("Search input not found after retries.");
+    return;
+  }
 
-        console.log("Search input found, attached listener.");
+  console.log("Search input found, attached listener.");
 
-        searchBox.addEventListener("input", function () {
-          const query = searchBox.value.toLowerCase().trim();
+  searchBox.addEventListener("input", function () {
+    const query = searchBox.value.toLowerCase().trim();
 
-          if (query.includes("find hospital")) {
-            console.log("Detected 'find hospital' phrase — highlighting hospitals");
-            map.fitBounds(hospitalLayer.getBounds());
-            hospitalLayer.eachLayer(function (layer) {
-              layer.setStyle({
-                color: "#ff0000",
-                weight: 3,
-                fillColor: "#ff6666",
-                fillOpacity: 0.7,
-              });
-            });
-          } else if (query === "") {
-            hospitalLayer.eachLayer(function (layer) {
-              hospitalLayer.resetStyle(layer);
-            });
-            console.log("Search box cleared, reset hospital styles.");
-          }
+    if (query.includes("find hospital")) {
+      console.log("Detected 'find hospital' phrase — highlighting hospitals");
+      map.fitBounds(hospitalLayer.getBounds());
+      hospitalLayer.eachLayer(function (layer) {
+        layer.setStyle({
+          color: "#ff0000",
+          weight: 3,
+          fillColor: "#ff6666",
+          fillOpacity: 0.7,
         });
-      }
+      });
+    } else if (query === "") {
+      hospitalLayer.eachLayer(function (layer) {
+        hospitalLayer.resetStyle(layer);
+      });
+      console.log("Search box cleared, reset hospital styles.");
+    }
+  });
+}
+
+
 
       attachSearchInputListener();
     }
