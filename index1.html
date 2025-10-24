@@ -41,7 +41,6 @@
     let hospitalLayer;
     let parkLayer;
     let searchControl;
-
     var map = L.map("map").setView([24.47, 54.38], 12);
 
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
@@ -70,7 +69,7 @@
         const responseHospitals = await fetch("data/hospitals.geojson");
         const geojsonHospitals = await responseHospitals.json();
         hospitalLayer = L.geoJSON(geojsonHospitals, {
-          pointToLayer: function (feature, latlng) {
+          pointToLayer: (feature, latlng) => {
             return L.circleMarker(latlng, {
               radius: 6,
               fillColor: "#ff0000",
@@ -80,7 +79,7 @@
               fillOpacity: 0.8,
             });
           },
-          style: function (feature) {
+          style: (feature) => {
             if (
               feature.geometry.type === "Polygon" ||
               feature.geometry.type === "MultiPolygon"
@@ -93,7 +92,7 @@
               };
             }
           },
-          onEachFeature: function (feature, layer) {
+          onEachFeature: (feature, layer) => {
             if (feature.properties && feature.properties.name) {
               layer.bindPopup("<b>Hospital:</b> " + feature.properties.name);
             }
@@ -103,7 +102,7 @@
         const responseParks = await fetch("data/park.geojson");
         const geojsonParks = await responseParks.json();
         parkLayer = L.geoJSON(geojsonParks, {
-          pointToLayer: function (feature, latlng) {
+          pointToLayer: (feature, latlng) => {
             return L.circleMarker(latlng, {
               radius: 6,
               fillColor: "#008000",
@@ -113,7 +112,7 @@
               fillOpacity: 0.8,
             });
           },
-          style: function (feature) {
+          style: (feature) => {
             if (feature.geometry.type === "Polygon" || feature.geometry.type === "MultiPolygon") {
               return {
                 color: "#008000",
@@ -123,7 +122,7 @@
               };
             }
           },
-          onEachFeature: function (feature, layer) {
+          onEachFeature: (feature, layer) => {
             if (feature.properties && feature.properties.name) {
               layer.bindPopup("Park: " + feature.properties.name);
             }
@@ -141,7 +140,7 @@
         layer: hospitalLayer,
         propertyName: "name",
         marker: false,
-        moveToLocation: function (latlng, title, map) {
+        moveToLocation: (latlng, title, map) => {
           map.setView(latlng, 15);
         },
       });
@@ -155,7 +154,6 @@
       attachSearchAndButton();
     }
 
-    // Attach search button and disable live search with retries until input exists
     function attachSearchAndButton() {
       const retries = 15;
       let attempts = 0;
@@ -176,21 +174,20 @@
               const query = input.value.toLowerCase().trim();
 
               if (query.length > 0) {
-                searchControl._searchText = query;
-                searchControl._performSearch(query);
+                // Dispatch input event programmatically ON button click
+                // Because live search is disabled, this triggers search once
+                const inputEvent = new Event('input', { bubbles: true });
+                input.value = query;
+                input.dispatchEvent(inputEvent);
               }
 
-              // Keyword-based toggling for hospitals and parks
+              // Keyword toggling logic:
               if (query.includes("find hospital")) {
                 console.log("Detected 'find hospital' phrase — highlighting hospitals");
-                if (parkLayer) {
-                  map.removeLayer(parkLayer);
-                }
+                if (parkLayer) map.removeLayer(parkLayer);
                 if (hospitalLayer) {
                   map.fitBounds(hospitalLayer.getBounds());
-                  if (!map.hasLayer(hospitalLayer)) {
-                    hospitalLayer.addTo(map);
-                  }
+                  if (!map.hasLayer(hospitalLayer)) map.addLayer(hospitalLayer);
                   hospitalLayer.eachLayer(layer => {
                     if (typeof layer.setStyle === "function") {
                       layer.setStyle({
@@ -204,14 +201,10 @@
                 }
               } else if (query.includes("show park") || query.includes("find park")) {
                 console.log("Detected 'show/find park' phrase — highlighting parks");
-                if (hospitalLayer) {
-                  map.removeLayer(hospitalLayer);
-                }
+                if (hospitalLayer) map.removeLayer(hospitalLayer);
                 if (parkLayer) {
                   map.fitBounds(parkLayer.getBounds());
-                  if (!map.hasLayer(parkLayer)) {
-                    parkLayer.addTo(map);
-                  }
+                  if (!map.hasLayer(parkLayer)) map.addLayer(parkLayer);
                   parkLayer.eachLayer(layer => {
                     if (typeof layer.setStyle === "function") {
                       layer.setStyle({
@@ -231,14 +224,12 @@
 
                 parkLayer.eachLayer(layer => {
                   let centerPoint;
-                  if (layer.getBounds) {
-                    centerPoint = layer.getBounds().getCenter();
-                  } else if (layer.getLatLng) {
-                    centerPoint = layer.getLatLng();
-                  }
+                  if (layer.getBounds) centerPoint = layer.getBounds().getCenter();
+                  else if (layer.getLatLng) centerPoint = layer.getLatLng();
+
                   if (centerPoint) {
-                    const distance = getDistance(corniche, centerPoint);
-                    if (distance <= radius) {
+                    const dist = getDistance(corniche, centerPoint);
+                    if (dist <= radius) {
                       nearbyParks.push(layer);
                       if (typeof layer.setStyle === "function") {
                         layer.setStyle({
@@ -263,16 +254,12 @@
                   console.log("No parks found near Corniche in radius");
                 }
               } else if (query === "") {
-                if (hospitalLayer) {
-                  hospitalLayer.eachLayer(layer => {
-                    if (typeof layer.setStyle === "function") hospitalLayer.resetStyle(layer);
-                  });
-                }
-                if (parkLayer) {
-                  parkLayer.eachLayer(layer => {
-                    if (typeof layer.setStyle === "function") parkLayer.resetStyle(layer);
-                  });
-                }
+                if (hospitalLayer) hospitalLayer.eachLayer(layer => {
+                  if (typeof layer.setStyle === "function") hospitalLayer.resetStyle(layer);
+                });
+                if (parkLayer) parkLayer.eachLayer(layer => {
+                  if (typeof layer.setStyle === "function") parkLayer.resetStyle(layer);
+                });
                 console.log("Search box cleared, reset all styles.");
               }
             });
@@ -281,9 +268,9 @@
             input.parentNode.insertBefore(btn, input.nextSibling);
           }
 
-          // Disable live search on typing
-          input.removeEventListener("input", searchControl._onInput || function () {});
-          input.addEventListener("input", function(e) {
+          // Disable live search on typing except when button is clicked
+          input.oninput = null;
+          input.addEventListener('input', (e) => {
             e.stopPropagation();
             e.preventDefault();
           });
@@ -295,7 +282,7 @@
             console.warn("Search input not found after retries");
           }
         }
-      }, 250);
+      }, 300);
     }
 
     main();
