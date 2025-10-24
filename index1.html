@@ -7,44 +7,52 @@
 
   <!-- Leaflet CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
-  <link rel="stylesheet" href="https://unpkg.com/leaflet-search@3.0.9/dist/leaflet-search.min.css" />
   <style>
     #map {
-      height: 100vh;
+      height: 90vh;
       width: 100%;
     }
-    .leaflet-search-button {
-      background: #3388ff;
-      border: none;
-      color: white;
-      padding: 5px 8px;
-      margin-left: 4px;
+    #search-container {
+      margin: 10px;
+    }
+    #custom-search-box {
+      width: 250px;
+      padding: 5px;
+      font-size: 14px;
+    }
+    #custom-search-button {
+      padding: 6px 12px;
       font-size: 14px;
       cursor: pointer;
-      border-radius: 3px;
-      vertical-align: middle;
     }
-    <!--.leaflet-search-button:hover {
-      background: #2a78d4;
-    }-->
   </style>
 </head>
+
 <body>
   <div id="map"></div>
+
+  <div id="search-container">
+    <input type="text" id="custom-search-box" placeholder="Type search here..." />
+    <button id="custom-search-button">Search</button>
+  </div>
+
+  <!-- Leaflet JS -->
   <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
-  <script src="https://unpkg.com/leaflet-search@3.0.9/dist/leaflet-search.min.js"></script>
+
   <script>
+    // Declare hospitalLayer and parkLayer globally
     let hospitalLayer;
     let parkLayer;
-    let searchControl;
 
+    // Initialize map centered on Abu Dhabi
     var map = L.map("map").setView([24.47, 54.38], 12);
 
+    // Add OSM tile layer
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      attribution:
-        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
     }).addTo(map);
 
+    // Haversine distance function (meters)
     function getDistance(latlng1, latlng2) {
       const R = 6371e3;
       const toRad = (deg) => deg * Math.PI / 180;
@@ -61,8 +69,10 @@
       return R * c;
     }
 
+    // Async function to load hospital and park GeoJSON data
     async function loadGeoJSON() {
       try {
+        // Load hospitals GeoJSON
         const responseHospitals = await fetch("data/hospitals.geojson");
         const geojsonHospitals = await responseHospitals.json();
         hospitalLayer = L.geoJSON(geojsonHospitals, {
@@ -96,6 +106,7 @@
           },
         }).addTo(map);
 
+        // Load parks GeoJSON
         const responseParks = await fetch("data/park.geojson");
         const geojsonParks = await responseParks.json();
         parkLayer = L.geoJSON(geojsonParks, {
@@ -110,7 +121,10 @@
             });
           },
           style: function (feature) {
-            if (feature.geometry.type === "Polygon" || feature.geometry.type === "MultiPolygon") {
+            if (
+              feature.geometry.type === "Polygon" ||
+              feature.geometry.type === "MultiPolygon"
+            ) {
               return {
                 color: "#008000",
                 weight: 3,
@@ -125,114 +139,72 @@
             }
           },
         }).addTo(map);
+
       } catch (error) {
         console.error("Error loading GeoJSON:", error);
       }
     }
 
-    function handleSearch(query, input) {
-      let found = false;
-      hospitalLayer.eachLayer(function(layer) {
-        if (layer.feature && layer.feature.properties && layer.feature.properties.name) {
-          const name = layer.feature.properties.name.toLowerCase();
-          if (name.includes(query)) {
-            found = true;
-            let center;
-            if (layer.getLatLng) {
-              center = layer.getLatLng();
-            } else if (layer.getBounds) {
-              center = layer.getBounds().getCenter();
-            }
-            if (center) {
-              map.setView(center, 15);
-              layer.openPopup();
-            }
-            return;
-          }
+    // Search logic reused from original input event
+    function performSearch(query) {
+      if (query.includes("find hospital")) {
+        if (parkLayer) {
+          map.removeLayer(parkLayer);
         }
-      });
-      if (!found) {
-        console.log("No hospital found with that name");
-      }
-    }
-
-    async function main() {
-      await loadGeoJSON();
-
-      searchControl = new L.Control.Search({
-        layer: hospitalLayer,
-        propertyName: "name",
-        marker: false,
-        autoCollapse: false,
-        minLength: 1,
-        moveToLocation: function (latlng, title, map) {
-          map.setView(latlng, 15);
-        },
-      });
-
-      searchControl.on("search:locationfound", function (e) {
-        e.layer.openPopup();
-      });
-
-      map.addControl(searchControl);
-
-      // Wait for the user to open the search control
-      const container = searchControl.getContainer();
-      container.addEventListener("click", function() {
-        setTimeout(() => {
-          attachSearchAndButton(container);
-        }, 100); // Wait for input to be created
-      });
-    }
-
-    function attachSearchAndButton(container) {
-      // Find the input element
-      let input = container.querySelector('input.leaflet-search-input');
-      if (!input) {
-        input = container.querySelector('input');
-      }
-      if (!input) {
-        console.error("Search input not found in container");
-        return;
-      }
-      if (container.querySelector('.leaflet-search-button')) {
-        return;
-      }
-
-      const btn = document.createElement('button');
-      btn.type = 'button';
-      btn.className = 'leaflet-search-button';
-      btn.textContent = 'Search';
-
-      btn.addEventListener('click', function() {
-        const query = input.value.toLowerCase().trim();
-        if (query.length === 0) {
-          console.log("Empty query");
-          return;
-        }
-
-        if (query.includes("find hospital")) {
-          if (parkLayer) map.removeLayer(parkLayer);
-          if (hospitalLayer) {
-            map.fitBounds(hospitalLayer.getBounds());
-            if (!map.hasLayer(hospitalLayer)) hospitalLayer.addTo(map);
-            hospitalLayer.eachLayer(layer => {
-              if (typeof layer.setStyle === "function") {
-                layer.setStyle({
-                  color: "#ff0000",
-                  weight: 3,
-                  fillColor: "#ff6666",
-                  fillOpacity: 0.7,
-                });
-              }
-            });
+        if (hospitalLayer) {
+          map.fitBounds(hospitalLayer.getBounds());
+          if (!map.hasLayer(hospitalLayer)) {
+            hospitalLayer.addTo(map);
           }
-        } else if (query.includes("show park") || query.includes("find park")) {
-          if (hospitalLayer) map.removeLayer(hospitalLayer);
-          if (parkLayer) {
-            map.fitBounds(parkLayer.getBounds());
-            if (!map.hasLayer(parkLayer)) parkLayer.addTo(map);
-            parkLayer.eachLayer(layer => {
+          hospitalLayer.eachLayer(function (layer) {
+            if (typeof layer.setStyle === "function") {
+              layer.setStyle({
+                color: "#ff0000",
+                weight: 3,
+                fillColor: "#ff6666",
+                fillOpacity: 0.7,
+              });
+            }
+          });
+        }
+      }
+      else if (query.includes("show park") || query.includes("find park")) {
+        if (hospitalLayer) {
+          map.removeLayer(hospitalLayer);
+        }
+        if (parkLayer) {
+          map.fitBounds(parkLayer.getBounds());
+          if (!map.hasLayer(parkLayer)) {
+            parkLayer.addTo(map);
+          }
+          parkLayer.eachLayer(function (layer) {
+            if (typeof layer.setStyle === "function") {
+              layer.setStyle({
+                color: "#006400",
+                weight: 4,
+                fillColor: "#32cd32",
+                fillOpacity: 0.7,
+              });
+            }
+          });
+        }
+      }
+      else if (query.includes("park near corniche")) {
+        const corniche = L.latLng(24.482, 54.331);
+        const radius = 1000;
+        const nearbyParks = [];
+
+        parkLayer.eachLayer(function (layer) {
+          let centerPoint;
+          if (layer.getBounds) {
+            centerPoint = layer.getBounds().getCenter();
+          } else if (layer.getLatLng) {
+            centerPoint = layer.getLatLng();
+          }
+          if (centerPoint) {
+            const distance = getDistance(corniche, centerPoint);
+            if (distance <= radius) {
+              nearbyParks.push(layer);
               if (typeof layer.setStyle === "function") {
                 layer.setStyle({
                   color: "#006400",
@@ -241,60 +213,65 @@
                   fillOpacity: 0.7,
                 });
               }
-            });
-          }
-        } else if (query.includes("park near corniche")) {
-          const corniche = L.latLng(24.482, 54.331);
-          const radius = 1000;
-          const nearbyParks = [];
-          parkLayer.eachLayer(layer => {
-            let centerPoint;
-            if (layer.getBounds) {
-              centerPoint = layer.getBounds().getCenter();
-            } else if (layer.getLatLng) {
-              centerPoint = layer.getLatLng();
-            }
-            if (centerPoint) {
-              const distance = getDistance(corniche, centerPoint);
-              if (distance <= radius) {
-                nearbyParks.push(layer);
-                if (typeof layer.setStyle === "function") {
-                  layer.setStyle({
-                    color: "#006400",
-                    weight: 4,
-                    fillColor: "#32cd32",
-                    fillOpacity: 0.7,
-                  });
-                }
-              } else {
-                if (typeof layer.setStyle === "function") {
-                  parkLayer.resetStyle(layer);
-                }
+            } else {
+              if (typeof layer.setStyle === "function") {
+                parkLayer.resetStyle(layer);
               }
             }
-          });
-          if (nearbyParks.length > 0) {
-            const group = L.featureGroup(nearbyParks);
-            map.fitBounds(group.getBounds());
           }
+        });
+
+        if (nearbyParks.length > 0) {
+          var group = L.featureGroup(nearbyParks);
+          map.fitBounds(group.getBounds());
         } else {
-          handleSearch(query, input);
+          console.log("No parks found near Corniche in radius");
         }
-      });
-
-      input.style.width = "180px";
-      input.parentNode.appendChild(btn);
-
-      // Disable automatic search on typing
-      input.oninput = null;
-      input.onkeyup = null;
-      input.addEventListener("input", function(e){
-        e.stopPropagation();
-        e.preventDefault();
-      });
+      }
+      else if (query === "") {
+        if (hospitalLayer) {
+          hospitalLayer.eachLayer(function (layer) {
+            if (typeof layer.setStyle === "function") hospitalLayer.resetStyle(layer);
+          });
+        }
+        if (parkLayer) {
+          parkLayer.eachLayer(function (layer) {
+            if (typeof layer.setStyle === "function") parkLayer.resetStyle(layer);
+          });
+        }
+        console.log("Search box cleared, reset all styles.");
+      }
     }
 
+    // Main async function to load data and setup handlers
+    async function main() {
+      await loadGeoJSON();
+
+      // Attach click handler to custom search button
+      document
+        .getElementById("custom-search-button")
+        .addEventListener("click", function () {
+          const query = document
+            .getElementById("custom-search-box")
+            .value.toLowerCase()
+            .trim();
+          performSearch(query);
+        });
+
+      // Optional: Enter key triggers search
+      document
+        .getElementById("custom-search-box")
+        .addEventListener("keydown", function (e) {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            document.getElementById("custom-search-button").click();
+          }
+        });
+    }
+
+    // Start everything
     main();
+
   </script>
 </body>
 </html>
