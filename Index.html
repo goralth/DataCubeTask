@@ -161,7 +161,9 @@ searchBox.addEventListener("input", function () {
     if (parkLayer) {
       map.removeLayer(parkLayer); // hide parks
     }
-
+    if(!map.hasLayer(hospitalLayer)){
+	hospitalLayer.addto(map);
+     }
     hospitalLayer.eachLayer(function (layer) {
       if (typeof layer.setStyle === "function") {
         layer.setStyle({
