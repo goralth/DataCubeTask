@@ -13,7 +13,6 @@
       height: 100vh;
       width: 100%;
     }
-    /* Style the search button */
     .leaflet-search-button {
       background: #3388ff;
       border: none;
@@ -30,11 +29,8 @@
     }
   </style>
 </head>
-
 <body>
   <div id="map"></div>
-
-  <!-- Leaflet JS -->
   <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
   <script src="https://unpkg.com/leaflet-search@3.0.9/dist/leaflet-search.min.js"></script>
   <script>
@@ -135,7 +131,6 @@
     }
 
     function handleSearch(query, input) {
-      // Manual search through hospital layer
       let found = false;
       hospitalLayer.eachLayer(function(layer) {
         if (layer.feature && layer.feature.properties && layer.feature.properties.name) {
@@ -152,11 +147,10 @@
               map.setView(center, 15);
               layer.openPopup();
             }
-            return; // Stop after first match
+            return;
           }
         }
       });
-
       if (!found) {
         console.log("No hospital found with that name");
       }
@@ -182,58 +176,42 @@
 
       map.addControl(searchControl);
 
-      // Wait a bit for the DOM to fully render the control
-      setTimeout(() => {
-        attachSearchAndButton();
-      }, 500);
+      // Wait for the user to open the search control
+      const container = searchControl.getContainer();
+      container.addEventListener("click", function() {
+        setTimeout(() => {
+          attachSearchAndButton(container);
+        }, 100); // Wait for input to be created
+      });
     }
 
-    function attachSearchAndButton() {
-      // Get the container from the search control
-      const container = searchControl.getContainer();
-      
-      if (!container) {
-        console.error("Search control container not found");
-        return;
+    function attachSearchAndButton(container) {
+      // Find the input element
+      let input = container.querySelector('input.leaflet-search-input');
+      if (!input) {
+        input = container.querySelector('input');
       }
-
-      console.log("Search control container found:", container);
-
-      // Find the input element - try multiple selectors
-      let input = container.querySelector('input');
-      
       if (!input) {
         console.error("Search input not found in container");
         return;
       }
-
-      console.log("Search input found:", input);
-
-      // Check if button already exists
       if (container.querySelector('.leaflet-search-button')) {
-        console.log("Button already exists");
         return;
       }
 
-      // Create the search button
       const btn = document.createElement('button');
       btn.type = 'button';
       btn.className = 'leaflet-search-button';
       btn.textContent = 'Search';
 
-      // Button click handler
       btn.addEventListener('click', function() {
         const query = input.value.toLowerCase().trim();
-        console.log("Search button clicked, query:", query);
-
         if (query.length === 0) {
           console.log("Empty query");
           return;
         }
 
-        // Handle keyword-based searches
         if (query.includes("find hospital")) {
-          console.log("Detected 'find hospital' phrase — highlighting hospitals");
           if (parkLayer) map.removeLayer(parkLayer);
           if (hospitalLayer) {
             map.fitBounds(hospitalLayer.getBounds());
@@ -250,7 +228,6 @@
             });
           }
         } else if (query.includes("show park") || query.includes("find park")) {
-          console.log("Detected 'show/find park' phrase — highlighting parks");
           if (hospitalLayer) map.removeLayer(hospitalLayer);
           if (parkLayer) {
             map.fitBounds(parkLayer.getBounds());
@@ -267,11 +244,9 @@
             });
           }
         } else if (query.includes("park near corniche")) {
-          console.log("Detected 'park near corniche' phrase — searching nearby parks");
           const corniche = L.latLng(24.482, 54.331);
           const radius = 1000;
           const nearbyParks = [];
-
           parkLayer.eachLayer(layer => {
             let centerPoint;
             if (layer.getBounds) {
@@ -298,41 +273,25 @@
               }
             }
           });
-
           if (nearbyParks.length > 0) {
             const group = L.featureGroup(nearbyParks);
             map.fitBounds(group.getBounds());
-          } else {
-            console.log("No parks found near Corniche in radius");
           }
         } else {
-          // Regular hospital name search
           handleSearch(query, input);
         }
       });
 
-      // Add button next to input
       input.style.width = "180px";
       input.parentNode.appendChild(btn);
 
-      // Disable the automatic search on typing
-      // Store the original event handler
-      const originalHandler = input.oninput;
-      
-      // Override the input event to do nothing
+      // Disable automatic search on typing
       input.oninput = null;
       input.onkeyup = null;
-      
-      // Remove any event listeners
-      const newInput = input.cloneNode(true);
-      input.parentNode.replaceChild(newInput, input);
-      input = newInput;
-      
-      // Re-add button after replacing input
-      input.style.width = "180px";
-      input.parentNode.appendChild(btn);
-
-      console.log("Search button setup complete");
+      input.addEventListener("input", function(e){
+        e.stopPropagation();
+        e.preventDefault();
+      });
     }
 
     main();
