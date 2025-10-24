@@ -98,21 +98,34 @@
         // Load parks GeoJSON with green polygon style
         const responseParks = await fetch("data/park.geojson");
         const geojsonParks = await responseParks.json();
-        parkLayer = L.geoJSON(geojsonParks, {
-          onEachFeature: (feature, layer) => {
-            if (feature.properties && feature.properties.name) {
-              layer.bindPopup("Park: " + feature.properties.name);
-            }
+       parkLayer = L.geoJSON(geojsonParks, {
+   pointToLayer: function (feature, latlng) {
+            return L.circleMarker(latlng, {
+              radius: 6,
+              fillColor: "#008000",
+              color: "#008000",
+              weight: 1,
+              opacity: 1,
+              fillOpacity: 0.8,
+            });
           },
-          style: function (feature) {
-            return {
-              color: "#008000", // Green border color
-              weight: 3, // Border thickness
-              fillColor: "#00ff00", // Light green fill color
-              fillOpacity: 0.3, // Fill transparency
-            };
-          },
-        }).addTo(map);
+  style: function (feature) {
+    if (feature.geometry.type === "Polygon" || feature.geometry.type === "MultiPolygon") {
+      return {
+        color: "#008000",
+        weight: 3,
+        fillColor: "#00ff00",
+        fillOpacity: 0.3,
+      };
+    }
+  },
+  onEachFeature: function (feature, layer) {
+    if (feature.properties && feature.properties.name) {
+      layer.bindPopup("Park: " + feature.properties.name);
+    }
+  },
+}).addTo(map);
+
       } catch (error) {
         console.error("Error loading GeoJSON:", error);
       }
@@ -155,13 +168,18 @@
 searchBox.addEventListener("input", function () {
   const query = searchBox.value.toLowerCase().trim();
 
-  if (query.includes("find hospital")) {
+  if (query.includes("hospital")) {
     console.log("Detected 'find hospital' phrase — highlighting hospitals");
-    map.fitBounds(hospitalLayer.getBounds());
+   
     if (parkLayer) {
       map.removeLayer(parkLayer); // hide parks
     }
-
+   if(hospitalLayer)
+   {
+      map.fitBounds(hospitalLayer.getBounds());
+       if (!map.hasLayer(hospitalLayer)) {
+        hospitalLayer.addTo(map);
+      }
     hospitalLayer.eachLayer(function (layer) {
       if (typeof layer.setStyle === "function") {
         layer.setStyle({
@@ -173,7 +191,8 @@ searchBox.addEventListener("input", function () {
       }
     });
   } 
-  else if (query.includes("show park") || query.includes("find park")) {
+  }
+  else if (query.includes("park")) {
     console.log("Detected 'show/find park' phrase — highlighting parks");
     if (hospitalLayer) {
       map.removeLayer(hospitalLayer); // hide hospitals
@@ -198,7 +217,7 @@ searchBox.addEventListener("input", function () {
   else if (query.includes("park near corniche")) {
     console.log("Detected 'park near corniche' phrase — searching nearby parks");
     const corniche = L.latLng(24.482, 54.331); // Corniche approximate center
-    const radius = 1000; // 3 km radius to search within
+    const radius = 1000; // 1 km radius to search within
     const nearbyParks = [];
     
     parkLayer.eachLayer(function (layer) {
