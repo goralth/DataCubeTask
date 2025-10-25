@@ -14,3 +14,4 @@ Files Required
 -data/park.geojson (GeoJSON file containing park data).
 
 * Same functionalities with search control implemented in this : https://goralth.github.io/DataCubeTask/Index.html
+* Implemented "Park Near Corniche" like logic in same above url for "Park near ReemCentralMosque" based on the park data available in geojson.
